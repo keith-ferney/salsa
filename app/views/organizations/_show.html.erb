@@ -128,7 +128,6 @@
             <div class="modal-body">
               <p>Republishing works by using the last published date for your documents.</p>
               <p>Search for documents:</p>
-              <p>here</p>
               <%= form_tag("/admin/organization/preview/#{@organization.slug}", method: "get") do %>
                 <div class="form-group">
                   <%= label_tag(:document_start_date, "Start Date:") %>
