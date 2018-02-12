@@ -1,10 +1,9 @@
 # Dev Guide - Docker
 
-Copy default configs, adjust as necessary
-
-    cp config/deploy/default/* config/
-
-Setup Docker (for postgresql db)
+## Prerequisites
+  Docker and docker-compose are required for this Guide
+  
+### Setup Docker (for postgresql db)
 
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository \
@@ -14,7 +13,7 @@ Setup Docker (for postgresql db)
     sudo apt-get update
     sudo apt-get install docker-ce
 
-Install docker composer (as root)
+### Install docker composer (as root)
 
     sudo curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.15.0/docker-compose-$(uname -s)-$(uname -m)"
 
@@ -64,15 +63,19 @@ These example Dockerfile and docker-compose.yml expect to be in a folder above t
         depends_on:
           - db
 
-Puma File (config/puma.rb)
+## Configs
+### Copy default configs, adjust as necessary
+
+    cp config/deploy/default/* config/
+
+### Puma File (config/puma.rb)
 
   copy from config/deploy/development/
 
-  ```
-  cp config/deploy/development/puma.rb config/
-  ```
+    cp config/deploy/development/puma.rb config/
 
-Databse config (config/database.yml)
+
+### Databse config (config/database.yml)
 
     development:
       adapter: postgresql
@@ -83,6 +86,18 @@ Databse config (config/database.yml)
       password:
       pool: 5
 
+### Secret key base
+  in terminal run
+
+    rake secret
+
+  then copy the output and put it in config/secrets.yml the file should look something like this
+
+    development:
+      secret_code_base: '<output from rake secret here>'
+
+
+### Postgres data folder
 Make the postgres data folder in the project's tmp folder
 
     mkdir tmp/db/postgres-data -p
@@ -91,7 +106,7 @@ Build (do once for first run, then only if Gemfile or Dockerfile change)
 
     sudo docker-compose build
 
-Database commands
+### Database commands
 
     sudo docker-compose run salsa rake db:create
     sudo docker-compose run salsa rake db:migrate
