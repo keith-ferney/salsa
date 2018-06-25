@@ -15,6 +15,9 @@
 
 <div id="organizationControl row">
   <div class="pull-right">
+    <% if @organization.enable_workflows %>
+      <button type="button" class="btn btn-primary " >Upload CSV</button>
+    <% end %>
     <!-- Trigger the modal with a button -->
     <% if has_role 'organization_admin' %>
       <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#republishSearch">Republish...</button>
