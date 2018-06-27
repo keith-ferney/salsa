@@ -1,12 +1,13 @@
 Rails.application.routes.draw do
 
+  resources :workflow_steps
   root 'default#index'
 
   resources :documents, path: 'SALSA', constraints: { slug: /.*/ }
 
   get '/:alias/:document', to: redirect('/SALSA/%{document}'), constraints: { alias: /(syllabuses|salsas?)/ }
   get '/:alias/:document/:action', to: redirect('/SALSA/%{document}/%{action}'), constraints: { alias: /(syllabuses|salsas?)/, action: /(edit|template)?/ }
-  
+
   get '/status/server', to: 'default#status_server'
 
   get '/admin', to: 'admin#landing', as: 'admin'
@@ -51,6 +52,9 @@ Rails.application.routes.draw do
 
     resources :organizations, param: :slug, constraints: { slug: /.*/ }
 
+    get "organization/import_documents/:slug", as:'organization_import_documents', controller: 'organizations', action: 'import_documents', constraints: { slug: /.*/ }
+    post "organization/import_documents/:slug", controller: 'organizations', action: 'import_documents', constraints: { slug: /.*/ }
+    #get "organizations/import_documents/:slug", to: 'organization#import_documents', constraints: { slug: /.*/ }
     get "organization/preview/:slug", to: 'republish#preview', as: 'republish_preview', constraints: { slug: /.*/ }
     get "organization/republish/:slug", to: 'republish#update_lock', as: 'republish_update', constraints: { slug: /.*/ }
 

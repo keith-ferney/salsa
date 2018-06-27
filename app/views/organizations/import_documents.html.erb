@@ -1,0 +1,8 @@
+<%= form_tag organization_import_documents_path, multipart: true, :html => { :class => "form-horizontal col-md-9" } do %>
+  <div class="form-group">
+    <div class="controls">
+      <%= file_field_tag :file, accept: '.csv', class: "btn btn-default" %>
+    </div>
+  </div>
+  <%= submit_tag "Import Documents CSV", class: "btn btn-default" %>
+<% end %>

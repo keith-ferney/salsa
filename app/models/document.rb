@@ -3,6 +3,7 @@ class Document < ApplicationRecord
 
   before_validation :normalize_blank_values, :ensure_ids
 
+  has_many :workflow_steps
   belongs_to :organization
   belongs_to :component, optional: true
 

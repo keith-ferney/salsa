@@ -1,0 +1,31 @@
+<%= form_with(model: workflow_step, local: true, :html => { :class => "form-horizontal col-md-9" } ) do |form| %>
+  <% if workflow_step.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(workflow_step.errors.count, "error") %> prohibited this workflow_step from being saved:</h2>
+
+      <ul>
+      <% workflow_step.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :email %>
+      <div class="controls">
+        <%= form.text_field :email, id: :workflow_step_email %>
+      </div>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :read_only %>
+      <div class="controls">
+        <%= form.text_field :read_only, id: :workflow_step_read_only, class:'form-control' %>
+      </div>
+  </div>
+
+  <div class="form-group">
+    <%= form.submit %>
+  </div>
+<% end %>

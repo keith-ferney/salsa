@@ -1,11 +1,12 @@
 class OrganizationsController < AdminController
+  require 'csv'
   before_action :require_admin_permissions, only: [:new, :create, :destroy]
   before_action :require_organization_admin_permissions, except: [:new, :create, :destroy, :show, :index]
   before_action :require_designer_permissions, only: [
       :show,
       :index
   ]
-  before_action :get_organizations, only: [:index, :new, :edit, :show]
+  before_action :get_organizations, only: [:index, :new, :edit, :show, :import_documents]
   layout 'admin'
   def index
     get_documents
@@ -33,6 +34,14 @@ class OrganizationsController < AdminController
     end
 
     redirect_to organizations_path
+  end
+
+  def import_documents
+    @organization = find_org_by_path params[:slug]
+    if params[:file]&.content_type == "text/csv" && params[:commit] == "Import Documents CSV"
+      Organization.import_documents(params[:file], @organization)
+      redirect_to organization_import_documents_path
+    end
   end
 
   def show
@@ -79,7 +88,7 @@ class OrganizationsController < AdminController
   end
 
   def import
-
+    redirect_to organizations_path
   end
 
   private
