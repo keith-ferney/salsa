@@ -5,7 +5,7 @@ CKEditor_configs = {
       ['Bold', 'Italic', '-', 'RemoveFormat'],
       ['Link', 'Unlink'],
       ['BulletedList', 'NumberedList', '-', 'Outdent', 'Indent'],
-      
+
       // these buttons don't work with the config.allowedContent specified...
       // ['JustifyLeft', 'JustifyCenter', 'JustifyRight']
     ],
@@ -31,7 +31,7 @@ CKEditor_configs = {
 }
 
 function CKEditor_focus(context) {
-  
+
 }
 
 function CKEditor_blur(context) {

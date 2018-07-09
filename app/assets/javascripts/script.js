@@ -126,6 +126,7 @@ function liteOff(x){
             }
             settings.data = cleanupDocument($('#page-data').html());
 
+
             var document_version = $('[data-document-version]').attr('data-document-version');
             var queryStringStart = settings.url.search(/\?/) < 0 ? '?' : '&';
             settings.url = settings.url + queryStringStart + 'document_version=' + document_version;
@@ -133,8 +134,14 @@ function liteOff(x){
             if( $("body").find( '[data-lms-course]' ).attr("data-lms-course")) {
               var lms_course_id =  jQuery.parseJSON($("body").find( '[data-lms-course]' ).attr("data-lms-course")).id;
             }
+            notification('Saving...');
+        });
+
+        $('#tb_save, #tb_share').on('ajax:success', function(event, xhr, settings) {
+            settings.data = cleanupDocument($('#page-data').html());
+            url = settings_url + 
             var organizationConfig = $("[data-organization-config]").data("organization-config");
-            if (lms_course_id && organizationConfig["track_meta_info_from_document"]){
+            if (organizationConfig["track_meta_info_from_document"]){
               var meta_data_from_doc = [];
               $("#page").find( '[data-meta]' ).each(function() {
                 var key = "salsa_" + $( this ).attr( 'data-meta' )
@@ -148,16 +155,15 @@ function liteOff(x){
               });
               if(meta_data_from_doc){
                 $.ajax({
-                  url: settings.url,
+                  url: url,
                   data: {meta_data_from_doc},
                   dataType: "json",
                   method: "PATCH"
                 });
               }
             }
-            notification('Saving...');
-        });
 
+        });
         $('#tb_save').on('ajax:success', function(event, data, xhr, settings) {
             if(data.status == 'ok') {
               $("#save_prompt").html('saved at: ' + new Date().toLocaleTimeString()).delay(5000).fadeOut(1000);

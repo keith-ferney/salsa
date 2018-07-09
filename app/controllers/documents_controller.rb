@@ -165,22 +165,36 @@ class DocumentsController < ApplicationController
     render :layout => 'organizations', :template => '/documents/from_lms'
   end
 
+  def update_meta_data
+    meta_data_from_doc = params[:meta_data_from_doc]
+    if meta_data_from_doc && @organization.track_meta_info_from_document
+      create_meta_data_from_document(meta_data_from_doc, @document, @organization)
+      meta_data_from_doc_saved = true
+    end
+    respond_to do |format|
+      if @organization.track_meta_info_from_document == false && meta_data_from_doc != nil
+        msg = { :status => "error", :message => "Tried to save document meta when document meta not enabled for this organization", :version => @document.versions.count }
+      end
+      format.json  {
+        view_url = document_url(@document.view_id, :only_path => false)
+        render :json => msg
+      }
+    end
+  end
+
   def update
     canvas_course_id = params[:canvas_course_id]
     document_version = params[:document_version]
-    meta_data_from_doc = params[:meta_data_from_doc]
     saved = false
+    meta_data_from_doc_saved = false
     republishing = true
     verify_org
     if (check_lock @organization[:slug], params[:batch_token]) && can_use_edit_token(@document.lms_course_id)
       republishing = false;
-      if meta_data_from_doc && @document.lms_course_id && @organization.lms_authentication_id && @organization.track_meta_info_from_document
-        create_meta_data_from_document(meta_data_from_doc, @document, @organization)
-        meta_data_from_doc_saved = true
-      elsif canvas_course_id && !@organization.skip_lms_publish
+      if canvas_course_id && !@organization.skip_lms_publish
         # publishing to canvas should not save in the Document model, the canvas version has been modified
-        saved = update_course_document(canvas_course_id, request.raw_post, @organization[:lms_info_slug]) if params[:canvas] && canvas_course_id
-      elsif !meta_data_from_doc
+        saved = update_course_documecanvas_course_id, request.raw_post, @organization[:lms_info_slug] if params[:canvas] && canvas_course_id
+      else
         if(params[:canvas_relink_course_id])
           #find old document in this org with this id, set to null
           old_document = Document.find_by lms_course_id: params[:canvas_relink_course_id], organization: @organization
@@ -204,9 +218,7 @@ class DocumentsController < ApplicationController
         msg = { :status => "error", :message => "You do not have permisson to save this document"}
       elsif republishing
        msg = { :status => "error", :message => "Documents for this organization are currently being republished. Please copy your changes and try again later.", :version => @document.versions.count }
-     elsif @organization.track_meta_info_from_document == false && meta_data_from_doc != nil
-        msg = { :status => "error", :message => "Tried to save document meta when document meta not enabled for this organization", :version => @document.versions.count }
-     elsif !saved && !meta_data_from_doc_saved
+     elsif !saved
         msg = { :status => "error", :message => "This is not a current version of this document! Please copy your changes and refresh the page to get the current version.", :version => @document.versions.count }
       else
         msg = { :status => "ok", :message => "Success!", :version => @document.versions.count }
@@ -221,23 +233,27 @@ class DocumentsController < ApplicationController
   protected
   def create_meta_data_from_document meta_data_from_doc, document, organization
     count = Hash.new 0
+    dm_array = []
     meta_data_from_doc.values.each do |md|
       count[md.fetch(:key).to_s] +=1
       k = "#{md.fetch(:key).to_s}_#{count[md.fetch(:key)]}"
       if dm = DocumentMeta.find_by(key: k, document_id: document.id)
         dm.value = md.fetch(:value)
         dm.save
+        dm_array.push dm.id
       elsif !DocumentMeta.exists?(key:k, document_id: document.id)
-        DocumentMeta.create(
+        dm = DocumentMeta.create(
           :key => k,
           :document_id => document.id,
           :value => md.fetch(:value).to_s,
           :root_organization_id => document.organization_id,
-          :lms_course_id => md.fetch(:lms_course_id),
+          :lms_course_id => md.fetch(:lms_course_id, "null"),
           :lms_organization_id => organization.lms_authentication_id
         )
+        dm_array.push dm.id
       end
     end
+    DocumentMeta.where(document_id: document.id).where("key LIKE :prefix", prefix: "salsa_%").where.not(id: dm_array).delete_all
   end
 
   def find_or_create_document session, params, organization, lms_course
