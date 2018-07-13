@@ -1,4 +1,4 @@
-<%= form_for @workflow_step, url: workflow_step_form_path, :html => { :class => "form-horizontal @workflow_step" } do |f| %>
+<%= form_for @workflow_step, url: workflow_step_form_path, :html => { :class => "form-horizontal @workflow_step col-md-9" } do |f| %>
 
   <% if @workflow_step.errors.any? %>
     <div id="error_expl" class="alert alert-danger">
@@ -32,6 +32,22 @@
       <%= f.collection_select :next_workflow_step_id, @workflow_steps, :id, :slug, {include_blank: true},{class:"form-control"} %>
     </div>
     <%=f.error_span(:next_workflow_step_id) %>
+  </div>
+
+  <div class="form-group">
+    <div class="col-lg-10">
+      <%= f.label :role, :class => 'control-label' %>
+      <%= f.select(:role, UserAssignment.roles, {:include_blank => ''}, {class:"form-control"}) %>
+    </div>
+    <%=f.error_span(:slug) %>
+  </div>
+
+  <div class="form-group">
+    <div class="col-sm-3">
+    <%= f.label :role_organization_id, :class => 'control-label' %>
+      <%= f.collection_select :role_organization_id, @organization.parents.push(@organization), :id, :slug, {include_blank: true},{class:"form-control"} %>
+    </div>
+    <%=f.error_span(:role_organization_id) %>
   </div>
 
   <div class="form-group">

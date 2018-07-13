@@ -28,7 +28,7 @@ class Organization < ApplicationRecord
   def organization_ids
     org_ids = [self.id]
     if self.inherit_workflows_from_parents
-      org_ids = self.parents.map{|x| x[:id]}
+      org_ids = self.parents.map{|x| x[:id]} + [self.id]
     end
     return org_ids
   end

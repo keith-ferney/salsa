@@ -29,16 +29,19 @@ class WorkflowStepsController < OrganizationsController
 
   # GET /workflow_steps/new
   def new
+    @organization = Organization.find_by(slug: params[:slug])
     @workflow_step = WorkflowStep.new
   end
 
   # GET /workflow_steps/1/edit
   def edit
+    org = Organization.find_by(slug: params[:slug])
   end
 
   # POST /workflow_steps
   # POST /workflow_steps.json
   def create
+    @organization = Organization.find_by(slug: params[:slug])
     @workflow_step = WorkflowStep.new(workflow_step_params)
     @workflow_step.organization_id = Organization.find_by(slug: params[:slug]).id
 
@@ -56,6 +59,8 @@ class WorkflowStepsController < OrganizationsController
   # PATCH/PUT /workflow_steps/1
   # PATCH/PUT /workflow_steps/1.json
   def update
+    @organization = Organization.find_by(slug: params[:slug])
+
     respond_to do |format|
       if @workflow_step.update(workflow_step_params)
         format.html { redirect_to workflow_step_path(params[:slug], @workflow_step), notice: 'Workflow step was successfully updated.' }
@@ -101,6 +106,6 @@ class WorkflowStepsController < OrganizationsController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def workflow_step_params
-      params.require(:workflow_step).permit(:slug, :name, :organization_id, :next_workflow_step_id, :start_step, :end_step)
+      params.require(:workflow_step).permit(:slug, :name, :organization_id, :next_workflow_step_id, :start_step, :end_step, :role, :role_organization_id)
     end
 end
