@@ -84,9 +84,9 @@ class ComponentsController < ApplicationController
     Zip::File.open(zipfile_path, Zip::File::CREATE) do |zipfile|
       @components.each do |component|
         if component.format == "erb"
-          zipfile.get_output_stream("#{component.name}.html.#{component.format}"){ |os| os.write component.layout }
+          zipfile.get_output_stream("#{component.slug}.html.#{component.format}"){ |os| os.write component.layout }
         else
-          zipfile.get_output_stream("#{component.name}.#{component.format}"){ |os| os.write component.layout }
+          zipfile.get_output_stream("#{component.slug}.#{component.format}"){ |os| os.write component.layout }
         end
       end
     end
