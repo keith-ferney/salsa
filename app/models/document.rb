@@ -11,6 +11,17 @@ class Document < ApplicationRecord
   validates :lms_course_id, uniqueness: { scope: :organization_id, message: "is already in use for this organization" }, allow_nil: true
   validates_uniqueness_of [:view_id, :edit_id, :template_id]
 
+  def can_view user=nil, org
+    user_assignment = user&.user_assignments&.find_by(organization_id:self.organization_id)
+    if self.assigned_to?(user)
+      true
+    elsif user_assignment && user_assignment.role == "admin" && WorkflowStep.where(id: org.parents.push(org).map(&:id)).includes?(document.workflow_step_id)
+      true
+    else
+      false
+    end
+  end
+
   def assigned_to? user
     result = false
     if self.workflow_step&.component_id && user != nil && self.workflow_step.step_type != "end_step" && user.user_assignments.where.not(organization_id: nil).exists?

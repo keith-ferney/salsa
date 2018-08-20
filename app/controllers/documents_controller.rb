@@ -8,6 +8,7 @@ class DocumentsController < ApplicationController
   before_action :lookup_document, :only => [:edit, :update]
   before_action :init_view_folder, :only => [:new, :edit, :update, :show, :course]
   before_action :set_paper_trail_whodunnit
+  before_action :check_workflow_permissions_if_enabled, only:[:show]
 
   def index
     redirect_to :new
@@ -249,6 +250,18 @@ class DocumentsController < ApplicationController
   end
 
   protected
+  def check_workflow_permissions_if_enabled
+    document = Document.find_by_view_id(params[:id])
+    if document&.organization&.enforce_workflow_permissions_on_document_view && document&.can_view(current_user, get_org)
+      true
+    elsif document&.organization&.enforce_workflow_permissions_on_document_view && !document&.can_view(current_user, get_org)
+      false
+      return render :file => "public/401.html", :status => :unauthorized, :layout => false
+    else
+      false
+    end
+  end
+
   def create_meta_data_from_document meta_data_from_doc, document, organization
     count = Hash.new 0
     meta_data_from_doc.values.each do |md|

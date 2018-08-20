@@ -149,6 +149,13 @@
 
         <div class="form-group">
           <div class="controls">
+            <%= f.check_box :enforce_workflow_permissions_on_document_view, class: '' %>
+            <%= f.label :enforce_workflow_permissions_on_document_view, class: "control-label" %>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="controls">
             <%= f.check_box :inherit_workflows_from_parents, class: '' %>
             <%= f.label :inherit_workflows_from_parents, class: "control-label" %>
           </div>
