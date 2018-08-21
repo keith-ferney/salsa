@@ -13,9 +13,15 @@ class Document < ApplicationRecord
 
   def can_view user=nil, org
     user_assignment = user&.user_assignments&.find_by(organization_id:self.organization_id)
-    if self.assigned_to?(user)
+    user_assignment = user&.user_assignments&.find_by(role: "admin") if !user_assignment
+    component = self.workflow_step&.component
+    if self.workflow_step_id == nil
       true
-    elsif user_assignment && user_assignment.role == "admin" && WorkflowStep.where(id: org.parents.push(org).map(&:id)).includes?(document.workflow_step_id)
+    elsif self.assigned_to?(user)
+      true
+    elsif user_assignment && user_assignment.role == "admin" && WorkflowStep.where(organization_id: org.parents.push(org).map(&:id)).exists?(self.workflow_step_id)
+      true
+    elsif user_assignment && user_assignment.role == "supervisor" && WorkflowStep.where(organization_id: org.parents.push(org).map(&:id)).exists?(self.workflow_step_id)
       true
     else
       false

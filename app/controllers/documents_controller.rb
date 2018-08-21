@@ -252,7 +252,9 @@ class DocumentsController < ApplicationController
   protected
   def check_workflow_permissions_if_enabled
     document = Document.find_by_view_id(params[:id])
-    if document&.organization&.enforce_workflow_permissions_on_document_view && document&.can_view(current_user, get_org)
+    if session[:admin_authorized]
+      true
+    elsif document&.organization&.enforce_workflow_permissions_on_document_view && document&.can_view(current_user, get_org)
       true
     elsif document&.organization&.enforce_workflow_permissions_on_document_view && !document&.can_view(current_user, get_org)
       false
