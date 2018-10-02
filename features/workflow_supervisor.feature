@@ -14,6 +14,16 @@ I want to have a defined set of workflow steps to go thrugh
     And I am on the workflow_steps index page for the organization
     Then I should be able to see all the workflow_steps for the organization
 
+  Scenario: fail to create workflow step
+    Given I am on the workflow_steps index page for the organization
+     When I click the "New" link
+     And I fill in the workflow_step form with:
+        | slug | step 1 space |
+        | name | Step 1 |
+        | next_workflow_step_id | |
+     And I click on "Create Workflow step"
+     Then I should see "invalid slug"
+
   Scenario: create workflow step
      Given I am on the workflow_steps index page for the organization
      When I click the "New" link
@@ -23,6 +33,17 @@ I want to have a defined set of workflow steps to go thrugh
         | next_workflow_step_id | |
      And I click on "Create Workflow step"
      Then I should see "Workflow step was successfully created."
+
+  Scenario: fail to update workflow step
+     Given there is a workflow_step on the organization
+     And I am on the workflow_steps index page for the organization
+     When I click the "Edit" link
+     And I fill in the workflow_step form with:
+        | slug | step 45 space |
+        | name | Step 1 |
+        | next_workflow_step_id | |
+     And I click on "Create Workflow step"
+     Then I should see "invalid slug"
 
   Scenario: update workflow step
      Given there is a workflow_step on the organization
